@@ -1,5 +1,6 @@
 package com.starfireaviation.sweepline;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeSet;
@@ -36,7 +37,7 @@ class EventTimeline {
 
                 // Create fragments of the existing event that don't overlap
                 // Left fragment: if existing starts before new event
-                if (existing.getStart() < newEvent.getStart()) {
+                if (existing.getStart().isBefore(newEvent.getStart())) {
                     TimeEvent leftFragment = new TimeEvent(
                             existing.getStart(),
                             newEvent.getStart(),
@@ -46,7 +47,7 @@ class EventTimeline {
                 }
 
                 // Right fragment: if existing ends after new event
-                if (existing.getEnd() > newEvent.getEnd()) {
+                if (existing.getEnd().isAfter(newEvent.getEnd())) {
                     TimeEvent rightFragment = new TimeEvent(
                             newEvent.getEnd(),
                             existing.getEnd(),
@@ -84,9 +85,9 @@ class EventTimeline {
      * @param time the time to query
      * @return the active event at that time, or null if none
      */
-    public TimeEvent getEventAt(long time) {
+    public TimeEvent getEventAt(LocalDateTime time) {
         for (TimeEvent event : events) {
-            if (time >= event.getStart() && time < event.getEnd()) {
+            if ((time.isAfter(event.getStart()) || time.equals(event.getStart())) && time.isBefore(event.getEnd())) {
                 return event;
             }
         }
@@ -127,7 +128,7 @@ class EventTimeline {
      * @param end end of the range
      * @return list of events that overlap with the range
      */
-    public List<TimeEvent> getEventsInRange(long start, long end) {
+    public List<TimeEvent> getEventsInRange(LocalDateTime start, LocalDateTime end) {
         List<TimeEvent> result = new ArrayList<>();
         TimeEvent rangeEvent = new TimeEvent(start, end, "");
 

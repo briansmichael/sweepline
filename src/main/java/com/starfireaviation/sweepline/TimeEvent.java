@@ -1,18 +1,19 @@
 package com.starfireaviation.sweepline;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 /**
  * Represents a time-based event with a start and end time.
  */
 class TimeEvent implements Comparable<TimeEvent> {
-    private final long start;
-    private final long end;
+    private final LocalDateTime start;
+    private final LocalDateTime end;
     private final String data;
     private final String id;
 
-    public TimeEvent(long start, long end, String data) {
-        if (start >= end) {
+    public TimeEvent(LocalDateTime start, LocalDateTime end, String data) {
+        if (start.isAfter(end) || start.isEqual(end)) {
             throw new IllegalArgumentException("Start time must be before end time");
         }
         this.start = start;
@@ -21,8 +22,8 @@ class TimeEvent implements Comparable<TimeEvent> {
         this.id = UUID.randomUUID().toString();
     }
 
-    public TimeEvent(long start, long end, String data, String id) {
-        if (start >= end) {
+    public TimeEvent(LocalDateTime start, LocalDateTime end, String data, String id) {
+        if (start.isAfter(end) || start.isEqual(end)) {
             throw new IllegalArgumentException("Start time must be before end time");
         }
         this.start = start;
@@ -31,25 +32,25 @@ class TimeEvent implements Comparable<TimeEvent> {
         this.id = id;
     }
 
-    public long getStart() { return start; }
-    public long getEnd() { return end; }
+    public LocalDateTime getStart() { return start; }
+    public LocalDateTime getEnd() { return end; }
     public String getData() { return data; }
     public String getId() { return id; }
 
     public boolean overlaps(TimeEvent other) {
-        return this.start < other.end && other.start < this.end;
+        return this.start.isBefore(other.end) && other.start.isBefore(this.end);
     }
 
     @Override
     public int compareTo(TimeEvent other) {
-        int cmp = Long.compare(this.start, other.start);
+        int cmp = this.start.compareTo(other.start);
         if (cmp != 0) return cmp;
-        return Long.compare(this.end, other.end);
+        return this.end.compareTo(other.end);
     }
 
     @Override
     public String toString() {
-        return String.format("Event[%d-%d: %s]", start, end, data);
+        return String.format("Event[%s - %s: %s]", start, end, data);
     }
 
     @Override
